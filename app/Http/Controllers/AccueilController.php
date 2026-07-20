@@ -29,11 +29,7 @@ class AccueilController extends Controller
                 'description' => 'Gestion des utilisateurs et statistiques',
                 'route' => '/'
             ],
-            [
-                'nom' => 'Super Admin',
-                'description' => 'Administration complète et sécurité',
-                'route' => '/'
-            ],
+            
         ];
 
         return view('welcome', compact('profils'));
