@@ -1,0 +1,121 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\pFacades\Hash;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash as FacadesHash;
+use Illuminate\Support\Str;
+
+class AuthController extends Controller
+{
+    public function login(Request $request)
+    {
+        $request->validate([
+            'role' => ['required', 'string', 'in:medecin,secretaire,patient,medecin_chef'],
+            'email' => ['nullable', 'email'],
+            'password' => ['nullable', 'string'],
+            'matricule' => ['nullable', 'string'],
+            'nom' => ['nullable', 'string'],
+            'prenom' => ['nullable', 'string'],
+            'code' => ['nullable', 'string'],
+        ]);
+
+        $role = $request->input('role');
+
+        if ($role === 'medecin' || $role === 'medecin_chef') {
+            $email = $request->input('email');
+            $password = $request->input('password');
+
+            $user = User::where('email', $email)->first();
+            if (! $user || ! FacadesHash::check($password, $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => ['Identifiants invalides.'],
+                ]);
+            }
+
+            $profile = DB::table('medecins')->where('user_id', $user->id)->first();
+            if (! $profile) {
+                throw ValidationException::withMessages([
+                    'email' => ['Ce compte n\'est pas associé à un médecin.'],
+                ]);
+            }
+
+            $isChef = $role === 'medecin_chef' && ($profile->est_chef ?? false);
+            if ($role === 'medecin_chef' && ! $isChef) {
+                throw ValidationException::withMessages([
+                    'email' => ['Ce compte n\'est pas un médecin chef.'],
+                ]);
+            }
+
+            Auth::login($user);
+            session(['auth_role' => $role === 'medecin_chef' ? 'medecin_chef' : 'medecin']);
+
+            return redirect()->intended('/');
+        }
+
+        if ($role === 'secretaire') {
+            $user = User::where('email', $request->input('email'))->first();
+            if (! $user || ! FacadesHash::check($request->input('password'), $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => ['Identifiants invalides.'],
+                ]);
+            }
+
+            $profile = DB::table('secretaires')->where('user_id', $user->id)->where('matricule', $request->input('matricule'))->first();
+            if (! $profile) {
+                throw ValidationException::withMessages([
+                    'matricule' => ['Matricule invalide.'],
+                ]);
+            }
+
+            Auth::login($user);
+            session(['auth_role' => 'secretaire']);
+            return redirect()->intended('/');
+        }
+
+        if ($role === 'patient') {
+            $nom = $request->input('nom');
+            $prenom = $request->input('prenom');
+            $code = $request->input('code');
+
+            $profile = DB::table('patients')
+                ->where('nom', $nom)
+                ->where('prenom', $prenom)
+                ->where('code', $code)
+                ->first();
+
+            if (! $profile) {
+                throw ValidationException::withMessages([
+                    'code' => ['Informations de patient invalides.'],
+                ]);
+            }
+
+            $user = $profile->user_id ? User::find($profile->user_id) : null;
+            if ($user) {
+                Auth::login($user);
+            } else {
+                $guestUser = User::firstOrCreate(
+                    ['email' => 'patient-' . Str::slug($nom . '-' . $prenom) . '@local'],
+                    ['name' => $nom . ' ' . $prenom, 'password' => FacadesHash::make('patient123')]
+                );
+                Auth::login($guestUser);
+            }
+
+            session(['auth_role' => 'patient']);
+            return redirect()->intended('/');
+        }
+
+        throw ValidationException::withMessages([
+            'role' => ['Rôle invalide.'],
+        ]);
+        }
+    public function showLoginForm()
+    {
+        return view('showLoginForm');
+    }
+}
