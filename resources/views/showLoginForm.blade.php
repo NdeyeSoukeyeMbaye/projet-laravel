@@ -21,7 +21,7 @@
             </div>
             <!-- Affiche automatiquement le titre : Espace Medecin, Espace Secretaire... -->
             <h2 class="text-2xl font-bold text-gray-800 capitalize">
-                Espace {{ str_replace('_', ' ', request('role', 'Connexion')) }}
+                Espace {{ $role ? str_replace('_', ' ', $role) : 'Connexion' }}
             </h2>
             <p class="text-sm text-gray-400 mt-1">Veuillez renseigner vos accès pour continuer</p>
         </div>
@@ -38,10 +38,10 @@
             @csrf
 
             <!-- Champ masqué qui transmet automatiquement le rôle reçu à votre contrôleur -->
-            <input type="hidden" name="role" value="{{ request('role') }}">
+            <input type="hidden" name="role" value="{{ $role }}">
 
             <!-- CAS 1 : MÉDECIN ou MÉDECIN CHEF -> Email + Mot de passe -->
-            @if(request('role') === 'medecin' || request('role') === 'medecin_chef')
+            @if($role === 'medecin' || $role === 'medecin_chef')
                 <div>
                     <label class="block text-sm font-semibold text-gray-600 mb-1.5">Adresse Email</label>
                     <input type="email" name="email" required placeholder="medecin@hopital.com"
@@ -55,11 +55,17 @@
                 </div>
             @endif
 
-            <!-- CAS 2 : SECRÉTAIRE -> Email + Matricule -->
-            @if(request('role') === 'secretaire')
+            <!-- CAS 2 : SECRÉTAIRE -> Email + Mot de passe + Matricule -->
+            @if($role === 'secretaire')
                 <div>
                     <label class="block text-sm font-semibold text-gray-600 mb-1.5">Adresse Email</label>
                     <input type="email" name="email" required placeholder="secretaire@hopital.com"
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all text-gray-700">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1.5">Mot de passe</label>
+                    <input type="password" name="password" required placeholder="••••••••"
                         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all text-gray-700">
                 </div>
 
@@ -71,7 +77,7 @@
             @endif
 
             <!-- CAS 3 : PATIENT -> Nom + Prénom + Code -->
-            @if(request('role') === 'patient')
+            @if($role === 'patient')
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-semibold text-gray-600 mb-1.5">Nom</label>
@@ -92,7 +98,7 @@
                 </div>
             @endif
 
-            <!-- Bouton de validation Bleu conforme à vos boutons originaux -->
+            <!-- Bouton de validation -->
             <button type="submit" 
                 class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 transform active:scale-[0.98] shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 text-sm tracking-wide">
                 Se connecter

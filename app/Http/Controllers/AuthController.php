@@ -4,19 +4,32 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\pFacades\Hash;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash as FacadesHash;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    /**
+     * Affiche le formulaire de connexion en passant le rôle sélectionné.
+     */
+    public function showLoginForm(Request $request)
+    {
+        // Récupère le rôle depuis l'URL (ex: ?role=patient) pour l'envoyer à la vue
+        $role = $request->query('role');
+        
+        return view('showLoginForm', compact('role'));
+    }
+
+    /**
+     * Gère la tentative d'authentification selon le rôle.
+     */
     public function login(Request $request)
     {
         $request->validate([
-            'role' => ['required', 'string', 'in:medecin,secretaire,patient,medecin_chef'],
+            'role' => ['required', 'string', 'in:medecin,secretaire,patient,medecin_chef,administrateur'],
             'email' => ['nullable', 'email'],
             'password' => ['nullable', 'string'],
             'matricule' => ['nullable', 'string'],
@@ -27,12 +40,13 @@ class AuthController extends Controller
 
         $role = $request->input('role');
 
+        // --- AUTHENTIFICATION MÉDECIN / MÉDECIN CHEF ---
         if ($role === 'medecin' || $role === 'medecin_chef') {
             $email = $request->input('email');
             $password = $request->input('password');
 
             $user = User::where('email', $email)->first();
-            if (! $user || ! FacadesHash::check($password, $user->password)) {
+            if (! $user || ! Hash::check($password, $user->password)) {
                 throw ValidationException::withMessages([
                     'email' => ['Identifiants invalides.'],
                 ]);
@@ -58,9 +72,10 @@ class AuthController extends Controller
             return redirect()->intended('/');
         }
 
+        // --- AUTHENTIFICATION SECRÉTAIRE ---
         if ($role === 'secretaire') {
             $user = User::where('email', $request->input('email'))->first();
-            if (! $user || ! FacadesHash::check($request->input('password'), $user->password)) {
+            if (! $user || ! Hash::check($request->input('password'), $user->password)) {
                 throw ValidationException::withMessages([
                     'email' => ['Identifiants invalides.'],
                 ]);
@@ -78,6 +93,7 @@ class AuthController extends Controller
             return redirect()->intended('/');
         }
 
+        // --- AUTHENTIFICATION PATIENT ---
         if ($role === 'patient') {
             $nom = $request->input('nom');
             $prenom = $request->input('prenom');
@@ -101,7 +117,7 @@ class AuthController extends Controller
             } else {
                 $guestUser = User::firstOrCreate(
                     ['email' => 'patient-' . Str::slug($nom . '-' . $prenom) . '@local'],
-                    ['name' => $nom . ' ' . $prenom, 'password' => FacadesHash::make('patient123')]
+                    ['name' => $nom . ' ' . $prenom, 'password' => Hash::make('patient123')]
                 );
                 Auth::login($guestUser);
             }
@@ -113,9 +129,5 @@ class AuthController extends Controller
         throw ValidationException::withMessages([
             'role' => ['Rôle invalide.'],
         ]);
-        }
-    public function showLoginForm()
-    {
-        return view('showLoginForm');
     }
 }
