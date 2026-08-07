@@ -12,9 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('patients', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        $table->id();
+
+        $table->foreignId('user_id')
+              ->constrained()
+              ->onDelete('cascade');
+
+        $table->string('telephone', 20);
+        $table->string('adresse');
+        $table->date('date_naissance')->nullable();
+        $table->enum('sexe', ['Masculin', 'Feminin'])->nullable();
+
+        $table->timestamps();
+    });
     }
 
     /**

@@ -123,7 +123,7 @@ class AuthController extends Controller
             }
 
             session(['auth_role' => 'patient']);
-            return redirect()->intended('/');
+            return redirect()->route('patient.dashboard');
         }
 
         throw ValidationException::withMessages([
