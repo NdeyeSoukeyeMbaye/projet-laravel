@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PatientDashboardController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AccueilController;
@@ -12,3 +13,5 @@ Route::get('/secretaire', function () {
 route::get('/patientcompte', function () { 
     return view('patientcompte', ['user' => auth()->user()]); 
 })->name('patientcompte');
+Route::get('/patient/dashboard', [PatientDashboardController::class, 'index'])
+    ->name('patient.dashboard');
