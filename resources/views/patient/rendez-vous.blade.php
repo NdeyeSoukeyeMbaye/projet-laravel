@@ -2,15 +2,21 @@
 
 @section('content')
 
-{{-- Header + navigation --}}
+{{-- ============================= --}}
+{{-- HEADER + NAVIGATION --}}
+{{-- ============================= --}}
+
 <x-navbar />
 
 
-{{-- Contenu --}}
-<main class="max-w-7xl mx-auto px-8 py-8">
+{{-- ============================= --}}
+{{-- CONTENU --}}
+{{-- ============================= --}}
+
+<main class="max-w-7xl mx-auto px-8 py-10">
 
     {{-- Titre --}}
-    <div class="mb-8">
+    <div class="mb-10">
 
         <h1 class="text-4xl font-serif font-bold text-gray-900">
             Mes rendez-vous
@@ -23,96 +29,135 @@
     </div>
 
 
-    {{-- Conteneur des rendez-vous --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+    {{-- ============================= --}}
+    {{-- RENDEZ-VOUS À VENIR --}}
+    {{-- ============================= --}}
 
-        {{-- En-tête --}}
-        <div class="flex items-center gap-3 mb-6">
+    <section>
 
-            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-
-                <ion-icon
-                    name="calendar-outline"
-                    class="text-2xl text-blue-600">
-                </ion-icon>
-
-            </div>
-
-            <h2 class="text-lg font-semibold text-gray-800">
-                Mes rendez-vous
-            </h2>
-
-        </div>
+        <h2 class="text-2xl font-serif font-bold text-gray-900 mb-5">
+            À venir
+        </h2>
 
 
-        {{-- Aucun rendez-vous --}}
-        @if($rendezVous->isEmpty())
+        @if($rendezVousAVenir->isEmpty())
 
-            <div class="rounded-xl bg-gray-50 border border-gray-100 p-8 text-center">
+            {{-- Aucun rendez-vous --}}
+            <div class="bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-sm">
 
-                <div class="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center">
+                <div class="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center mb-4">
 
                     <ion-icon
                         name="calendar-outline"
-                        class="text-3xl text-blue-400">
+                        class="text-3xl text-blue-600">
                     </ion-icon>
 
                 </div>
 
-                <h3 class="mt-4 font-semibold text-gray-700">
-                    Aucun rendez-vous
+                <h3 class="text-lg font-semibold text-gray-800">
+                    Aucun rendez-vous à venir
                 </h3>
 
-                <p class="text-sm text-gray-400 mt-2">
-                    Vous n'avez actuellement aucun rendez-vous enregistré.
+                <p class="text-gray-500 mt-2">
+                    Vous n'avez actuellement aucun rendez-vous programmé.
                 </p>
 
             </div>
 
         @else
 
-            {{-- Liste des rendez-vous --}}
-            <div class="space-y-4">
+            <div class="space-y-5">
 
-                @foreach($rendezVous as $rendezVousItem)
+                @foreach($rendezVousAVenir as $rendezVous)
 
-                    <div class="border border-gray-100 rounded-xl p-5">
+                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
 
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-6">
 
-                            <div>
+                            {{-- Partie gauche --}}
+                            <div class="flex items-center gap-5">
 
-                                <h3 class="font-semibold text-gray-800">
-                                    Dr.
-                                    {{ $rendezVousItem->medecin?->user?->name ?? 'Médecin non renseigné' }}
-                                </h3>
+                                {{-- Icône --}}
+                                <div class="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
 
-                                <p class="text-sm text-gray-500 mt-1">
+                                    <ion-icon
+                                        name="calendar-outline"
+                                        class="text-3xl text-blue-600">
+                                    </ion-icon>
 
-                                    {{ $rendezVousItem->date }}
+                                </div>
 
-                                    @if($rendezVousItem->heure)
-                                        à {{ $rendezVousItem->heure }}
-                                    @endif
 
-                                </p>
+                                {{-- Médecin --}}
+                                <div>
 
-                                @if($rendezVousItem->motif)
+                                    <h3 class="text-xl font-semibold text-gray-900">
 
-                                    <p class="text-sm text-gray-500 mt-2">
-                                        Motif : {{ $rendezVousItem->motif }}
+                                        @if($rendezVous->medecin && $rendezVous->medecin->user)
+
+                                            Dr. {{ $rendezVous->medecin->user->name }}
+
+                                        @else
+
+                                            Médecin non renseigné
+
+                                        @endif
+
+                                    </h3>
+
+
+                                    <p class="text-gray-500 mt-1">
+
+                                        @if($rendezVous->medecin && $rendezVous->medecin->specialite)
+
+                                            {{ $rendezVous->medecin->specialite->nom }}
+
+                                        @else
+
+                                            Spécialité non renseignée
+
+                                        @endif
+
+                                        @if($rendezVous->motif)
+                                            · {{ $rendezVous->motif }}
+                                        @endif
+
                                     </p>
 
-                                @endif
+                                </div>
 
                             </div>
 
 
-                            <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-sm">
+                            {{-- Date + heure + statut --}}
+                            <div class="flex items-center gap-6">
 
-                                {{ $rendezVousItem->statut }}
+                                <div class="text-right">
 
-                            </span>
+                                    <p class="text-lg font-semibold text-gray-900">
+
+                                        {{ \Carbon\Carbon::parse($rendezVous->date)->translatedFormat('d F Y') }}
+
+                                    </p>
+
+                                    <p class="text-gray-500">
+
+                                        {{ $rendezVous->heure }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <span class="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-600 text-sm font-medium">
+
+                                    <ion-icon name="time-outline"></ion-icon>
+
+                                    {{ $rendezVous->statut }}
+
+                                </span>
+
+                            </div>
 
                         </div>
 
@@ -124,7 +169,105 @@
 
         @endif
 
-    </div>
+    </section>
+
+
+    {{-- ============================= --}}
+    {{-- RENDEZ-VOUS PASSÉS --}}
+    {{-- ============================= --}}
+
+    <section class="mt-12">
+
+        <h2 class="text-2xl font-serif font-bold text-gray-900 mb-5">
+            Rendez-vous passés
+        </h2>
+
+
+        @if($rendezVousPasses->isEmpty())
+
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 text-center shadow-sm">
+
+                <p class="text-gray-500">
+                    Aucun rendez-vous passé.
+                </p>
+
+            </div>
+
+        @else
+
+            <div class="space-y-5">
+
+                @foreach($rendezVousPasses as $rendezVous)
+
+                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+
+                        <div class="flex items-center justify-between">
+
+                            <div class="flex items-center gap-5">
+
+                                <div class="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center">
+
+                                    <ion-icon
+                                        name="calendar-outline"
+                                        class="text-2xl text-gray-500">
+                                    </ion-icon>
+
+                                </div>
+
+                                <div>
+
+                                    <h3 class="font-semibold text-gray-900">
+
+                                        @if($rendezVous->medecin && $rendezVous->medecin->user)
+
+                                            Dr. {{ $rendezVous->medecin->user->name }}
+
+                                        @else
+
+                                            Médecin non renseigné
+
+                                        @endif
+
+                                    </h3>
+
+                                    <p class="text-gray-500">
+
+                                        {{ $rendezVous->motif ?? 'Aucun motif renseigné' }}
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="text-right">
+
+                                <p class="font-medium text-gray-700">
+
+                                    {{ \Carbon\Carbon::parse($rendezVous->date)->translatedFormat('d F Y') }}
+
+                                </p>
+
+                                <p class="text-gray-500">
+
+                                    {{ $rendezVous->heure }}
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                @endforeach
+
+            </div>
+
+        @endif
+
+    </section>
 
 </main>
 

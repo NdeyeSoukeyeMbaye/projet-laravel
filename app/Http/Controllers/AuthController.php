@@ -23,6 +23,15 @@ class AuthController extends Controller
         return view('showLoginForm', compact('role'));
     }
 
+    public function logout()
+    {
+        Auth::logout();
+
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect()->route('accueil');
+    }
     /**
      * Gère la tentative d'authentification selon le rôle.
      */
