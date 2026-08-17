@@ -1,39 +1,42 @@
-<div class="bg-white rounded-2xl shadow-sm p-6">
+{{-- ============================== --}}
+{{-- HEADER --}}
+{{-- ============================== --}}
 
-    <div class="flex items-center justify-between">
+<header class="w-full bg-white border-b border-gray-200 shadow-sm">
 
-        <!-- Partie gauche -->
+    <div class="px-8 py-5 flex items-center justify-between">
+
+        {{-- Partie gauche --}}
         <div class="flex items-center gap-4">
 
-            <!-- Avatar -->
+            {{-- Avatar --}}
             <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
 
                 <span class="text-blue-700 text-xl font-bold">
-                    {{ strtoupper(substr(Auth::user()->name,0,1)) }}
+                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                 </span>
 
             </div>
 
+
+            {{-- Informations --}}
             <div>
 
                 <h2 class="text-xl font-bold text-gray-900">
-
                     {{ Auth::user()->name }}
-
                 </h2>
 
                 <p class="text-gray-500">
-
-                    Patient • Clinique Lumière
-
+                    Patient
                 </p>
 
             </div>
 
         </div>
 
-        <!-- Déconnexion -->
-        <a href="#"
+
+        {{-- Déconnexion --}}
+        <a href="{{ route('logout') }}"
            class="flex items-center gap-2 text-gray-600 hover:text-red-600 transition">
 
             <ion-icon
@@ -47,49 +50,83 @@
 
     </div>
 
-</div>
+</header>
 
-<!-- Barre de navigation -->
-<div class="mt-6 bg-stone-100 rounded-2xl p-2">
 
-    <div class="flex gap-2">
+{{-- ============================== --}}
+{{-- NAVIGATION --}}
+{{-- ============================== --}}
 
-        <a href="#"
-           class="flex items-center gap-2 px-6 py-3 rounded-xl bg-white shadow font-semibold text-gray-900">
+<div class="max-w-7xl mx-auto px-8 pt-6">
 
-            <ion-icon name="grid-outline"></ion-icon>
+    <nav class="bg-[#eee9e1] rounded-2xl p-2 flex items-center justify-center gap-1">
+
+
+        {{-- Tableau de bord --}}
+        <a href="{{ route('patient.dashboard') }}"
+           class="flex items-center gap-2 px-6 py-3 rounded-xl transition
+           {{ request()->routeIs('patient.dashboard')
+                ? 'bg-white shadow-sm font-semibold text-gray-900'
+                : 'text-gray-600 hover:bg-white' }}">
+
+            <ion-icon
+                name="grid-outline"
+                class="text-xl">
+            </ion-icon>
 
             Tableau de bord
 
         </a>
 
-        <a href="#"
-           class="flex items-center gap-2 px-6 py-3 rounded-xl text-gray-600 hover:bg-white">
 
-            <ion-icon name="calendar-outline"></ion-icon>
+        {{-- Mes rendez-vous --}}
+        <a href="{{ route('patient.rendez-vous') }}"
+           class="flex items-center gap-2 px-6 py-3 rounded-xl transition
+           {{ request()->routeIs('patient.rendez-vous')
+                ? 'bg-white shadow-sm font-semibold text-gray-900'
+                : 'text-gray-600 hover:bg-white' }}">
+
+            <ion-icon
+                name="calendar-outline"
+                class="text-xl">
+            </ion-icon>
 
             Mes rendez-vous
 
         </a>
 
-        <a href="#"
-           class="flex items-center gap-2 px-6 py-3 rounded-xl text-gray-600 hover:bg-white">
 
-            <ion-icon name="document-text-outline"></ion-icon>
+        {{-- Dossier médical --}}
+        <a href="{{ route('patient.dossier-medical') }}"
+           class="flex items-center gap-2 px-6 py-3 rounded-xl text-gray-600 hover:bg-white transition
+            {{ request()->routeIs('patient.dossier-medical')
+            ? 'bg-white shadow-sm font-semibold text-gray-900'
+            : 'text-gray-600 hover:bg-white/70' }}">
+            <ion-icon
+                name="document-text-outline"
+                class="text-xl">
+            </ion-icon>
 
             Dossier médical
 
         </a>
 
-        <a href="#"
-           class="flex items-center gap-2 px-6 py-3 rounded-xl text-gray-600 hover:bg-white">
 
-            <ion-icon name="time-outline"></ion-icon>
+        {{-- Historique --}}
+        <a href="{{ route('patient.historique') }}"
+           class="flex items-center gap-2 px-6 py-3 rounded-xl text-gray-600 hover:bg-white transition
+            {{ request()->routeIs('patient.historique')
+            ? 'bg-white shadow-sm font-semibold text-gray-900'
+            : 'text-gray-600 hover:bg-white/70' }}">
+            <ion-icon
+                name="time-outline"
+                class="text-xl">
+            </ion-icon>
 
             Historique
 
         </a>
 
-    </div>
+    </nav>
 
 </div>

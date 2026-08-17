@@ -23,6 +23,15 @@ class AuthController extends Controller
         return view('showLoginForm', compact('role'));
     }
 
+    public function logout()
+    {
+        Auth::logout();
+
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect()->route('accueil');
+    }
     /**
      * Gère la tentative d'authentification selon le rôle.
      */
@@ -100,8 +109,11 @@ class AuthController extends Controller
             // Connecte directement l'utilisateur trouvé
             Auth::login($user);
             session(['auth_role' => 'secretaire']);
+<<<<<<< HEAD
             
             // Redirection vers l'espace de secrétariat
+=======
+>>>>>>> 1f1e26a7f3a5c11534869a78dd2b520c1af419c2
             return redirect()->route('secretaire');
         }
         // --- AUTHENTIFICATION PATIENT ---
