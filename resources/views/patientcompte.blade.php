@@ -133,8 +133,154 @@
                             </button>
                         </div>
                     </form>
+             <!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MédiGestion - Fiche Patient</title>
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-white font-sans antialiased text-slate-700">
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- 1. BARRE LATÉRALE (SIDEBAR) -->
+        <aside class="w-64 bg-blue-900 text-white flex flex-col border-r border-blue-800">
+            <div class="p-5 text-base font-bold border-b border-blue-800 tracking-wide text-center">
+                MédiGestion
+            </div>
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <a href="{{ route('agenda.index') }}" class="block text-blue-100 hover:bg-blue-800 p-2.5 rounded-lg transition text-xs font-medium">
+                    Tableau de bord
+                </a>
+                <a href="#" class="block bg-blue-800 p-2.5 rounded-lg text-white text-xs font-semibold">
+                    Gestion Patients
+                </a>
+                <a href="{{ route('agenda.index') }}#section-agenda" class="block text-blue-100 hover:bg-blue-800 p-2.5 rounded-lg transition text-xs font-medium">
+                    Rendez-vous
+                </a>
+            </nav>
+            <div class="p-4 border-t border-blue-800">
+                <button class="w-full bg-transparent hover:bg-red-700 text-blue-200 hover:text-white p-2 rounded-lg text-xs font-medium transition border border-blue-800 hover:border-red-700">
+                    Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTENU PRINCIPAL -->
+        <div class="flex-1 flex flex-col overflow-hidden bg-white">
+            
+            <!-- 2. BARRE SUPÉRIEURE (NAVBAR) -->
+            <header class="bg-white h-14 flex items-center justify-between px-6 border-b border-slate-200 shadow-sm">
+                <div class="flex items-center space-x-3">
+                    <a href="{{ route('agenda.index') }}" class="text-slate-400 hover:text-blue-600 text-xs font-medium transition">
+                        &larr; Retour
+                    </a>
+                    <span class="text-slate-200">|</span>
+                    <h1 class="text-sm font-bold text-slate-800">Comptes & Fiches Patients</h1>
+                </div>
+            </header>
+
+            <!-- 3. ZONE DE CONTENU CENTRAL -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 space-y-6 bg-slate-50/30">
+                
+                <!-- Messages Flash de validation Laravel -->
+                @if(session('success'))
+                    <div class="p-4 bg-green-100 border-l-4 border-green-500 text-green-700 text-xs rounded-lg shadow-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 text-xs rounded-lg shadow-sm">
+                        <ul class="list-disc pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                
+                <!-- ZONE DE RECHERCHE PRINCIPALE -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200">
+                    <form action="{{ route('patientcompte.index') }}" method="GET" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Rechercher un patient</h2>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Entrez les critères pour charger ou modifier une fiche.</p>
+                        </div>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Nom, prénom ou téléphone..." class="w-full md:w-72 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">
+                                Rechercher
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
+                <!-- FORMULAIRE 1 : MODIFICATION -->
+                @if($patient)
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="px-5 py-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">
+                                Modifier la fiche : {{ $patient->prenom }} {{ $patient->nom }}
+                            </h2>
+                            <p class="text-[10px] text-slate-400 mt-0.5">ID Dossier : #PT-{{ $patient->id }}</p>
+                        </div>
+                        <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100">Fiche active</span>
+                    </div>
+
+                    <form action="{{ route('patientcompte.update', $patient->id) }}" method="POST" class="p-5 space-y-5">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nom</label>
+                                <input type="text" value="{{ $patient->nom }}" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-slate-50 text-slate-400 cursor-not-allowed focus:outline-none" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Prénom</label>
+                                <input type="text" value="{{ $patient->prenom }}" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-slate-50 text-slate-400 cursor-not-allowed focus:outline-none" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">N° Téléphone</label>
+                                <input type="tel" name="telephone" value="{{ old('telephone', $patient->telephone) }}" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Poids actuel (kg)</label>
+                                <input type="number" step="0.1" name="poids" value="{{ old('poids', $patient->poids) }}" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Taille (cm)</label>
+                                <input type="number" name="taille" value="{{ old('taille', $patient->taille) }}" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Statut Dossier</label>
+                                <select name="statut" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                                    <option value="actif" {{ old('statut', $patient->statut) == 'actif' ? 'selected' : '' }}>Actif</option>
+                                    <option value="archive" {{ old('statut', $patient->statut) == 'archive' ? 'selected' : '' }}>Archivé</option>
+                                    <option value="suspendu" {{ old('statut', $patient->statut) == 'suspendu' ? 'selected' : '' }}>Suspendu</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end border-t border-slate-100 pt-4">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-xs font-semibold transition">
+                                Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                @endif
+
+                <!-- FORMULAIRE 2 : CRÉATION DE COMPTE -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="px-5 py-3 border-b border-slate-100 bg-slate-50/50">
+                        <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Créer une nouvelle fiche patient</h2>
                 <!-- FORMULAIRE 2 : CRÉATION DE COMPTE -->
                 <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
                     <div class="px-5 py-3 border-b border-slate-100 bg-slate-50/50">
@@ -142,20 +288,53 @@
                         <p class="text-[10px] text-slate-400 mt-0.5">Renseignez l'identité civile et l'état de santé initial.</p>
                     </div>
 
-                    <form action="#" method="POST" class="p-5 space-y-5">
+                    <form action="{{ route('patientcompte.store') }}" method="POST" class="p-5 space-y-5">
+                        @csrf
+
+                        <!-- Identité Civile -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nom *</label>
-                            <!-- Les balises se ferment bien toutes ici à la fin : -->
-                        <div class="flex justify-end space-x-2 border-t border-slate-100 pt-4">
-                            <button type="reset" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold transition">Réinitialiser</button>
-                            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition">Créer le profil patient</button>
+                                <input type="text" name="nom" value="{{ old('nom') }}" required placeholder="Ex: Martin" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Prénom *</label>
+                                <input type="text" name="prenom" value="{{ old('prenom') }}" required placeholder="Ex: Alice" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">N° Téléphone *</label>
+                                <input type="tel" name="telephone" value="{{ old('telephone') }}" required placeholder="Ex: 0600000000" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                            </div>
                         </div>
-                    </form> <!-- Ferme le formulaire de création -->
-                </div> <!-- Ferme la carte blanche de création -->
 
-            </main> <!-- Ferme la zone centrale scrollable -->
-        </div> <!-- Ferme le conteneur du contenu principal -->
-    </div> <!-- Ferme le flex global de l'application -->
-</body> <!-- Ferme le corps du document -->
-</html> <!-- Ferme la page HTML -->
+                        <!-- Données Médicales Initiales -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Poids initial (kg)</label>
+                                <input type="number" step="0.1" name="poids" value="{{ old('poids') }}" placeholder="Ex: 70.0" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Taille initiale (cm)</label>
+                                <input type="number" name="taille" value="{{ old('taille') }}" placeholder="Ex: 175" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Statut Initial</label>
+                                <select name="statut" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-blue-500 focus:outline-none transition bg-white text-slate-700">
+                                    <option value="actif" {{ old('statut') == 'actif' ? 'selected' : '' }}>Actif</option>
+                                    <option value="archive" {{ old('statut') == 'archive' ? 'selected' : '' }}>Archivé</option>
+                                    <option value="suspendu" {{ old('statut') == 'suspendu' ? 'selected' : '' }}>Suspendu</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'Action -->
+                        <div class="flex justify-end space-x-2 border-t border-slate-100 pt-4">
+                            <button type="reset" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold transition">
+                                Réinitialiser
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition">
+                                Créer le profil patient
+                            </button>
+                        </div>
+                    </form>
+                </div>

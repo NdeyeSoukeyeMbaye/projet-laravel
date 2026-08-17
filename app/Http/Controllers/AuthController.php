@@ -74,31 +74,43 @@ class AuthController extends Controller
 
         // --- AUTHENTIFICATION SECRÉTAIRE ---
         if ($role === 'secretaire') {
-            $user = User::where('email', $request->input('email'))->first();
-            if (! $user || ! Hash::check($request->input('password'), $user->password)) {
+            $email = $request->input('email');
+            $matricule = $request->input('matricule');
+
+            // 1. Récupération de l'utilisateur par son adresse email
+            $user = User::where('email', $email)->first();
+            if (! $user) {
                 throw ValidationException::withMessages([
                     'email' => ['Identifiants invalides.'],
                 ]);
             }
 
-            $profile = DB::table('secretaires')->where('user_id', $user->id)->where('matricule', $request->input('matricule'))->first();
+            // 2. Vérification uniquement du matricule associé à l'ID utilisateur
+            $profile = DB::table('secretaires')
+                ->where('user_id', $user->id)
+                ->where('matricule', $matricule)
+                ->first();
+
             if (! $profile) {
                 throw ValidationException::withMessages([
-                    'matricule' => ['Matricule invalide.'],
+                    'matricule' => ['Le numéro de matricule ne correspond pas à ce compte secrétaire.'],
                 ]);
             }
 
+            // Connecte directement l'utilisateur trouvé
             Auth::login($user);
             session(['auth_role' => 'secretaire']);
-            return redirect()->intended('/');
+            
+            // Redirection vers l'espace de secrétariat
+            return redirect()->route('secretaire');
         }
-
         // --- AUTHENTIFICATION PATIENT ---
         if ($role === 'patient') {
             $nom = $request->input('nom');
             $prenom = $request->input('prenom');
             $code = $request->input('code');
 
+            // 1. Recherche du profil patient existant
             $profile = DB::table('patients')
                 ->where('nom', $nom)
                 ->where('prenom', $prenom)
@@ -111,24 +123,32 @@ class AuthController extends Controller
                 ]);
             }
 
+            // 2. Vérification ou création de son compte utilisateur (User)
             $user = $profile->user_id ? User::find($profile->user_id) : null;
-            if ($user) {
-                Auth::login($user);
-            } else {
-                $guestUser = User::firstOrCreate(
+            
+            if (!$user) {
+                // Crée un utilisateur s'il n'existe pas encore
+                $user = User::firstOrCreate(
                     ['email' => 'patient-' . Str::slug($nom . '-' . $prenom) . '@local'],
                     ['name' => $nom . ' ' . $prenom, 'password' => Hash::make('patient123')]
                 );
-                Auth::login($guestUser);
+
+                // 🔥 CORRECTION : On met à jour la table patients pour y inscrire le user_id manquant
+                DB::table('patients')
+                    ->where('id', $profile->id)
+                    ->update(['user_id' => $user->id]);
             }
+
+            // 3. Connecte l'utilisateur
+            Auth::login($user);
 
             session(['auth_role' => 'patient']);
             return redirect()->route('patient.dashboard');
         }
+
 
         throw ValidationException::withMessages([
             'role' => ['Rôle invalide.'],
         ]);
     }
 }
-    
