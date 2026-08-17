@@ -12,7 +12,7 @@
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
 
-<body class="bg-slate-100">
+<body class="bg-[#f7f5f1]">
 
     <div class="min-h-screen">
 

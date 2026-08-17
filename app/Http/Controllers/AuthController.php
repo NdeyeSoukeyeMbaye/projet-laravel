@@ -90,7 +90,7 @@ class AuthController extends Controller
 
             Auth::login($user);
             session(['auth_role' => 'secretaire']);
-            return redirect()->intended('/');
+            return redirect()->route('secretaire');
         }
 
         // --- AUTHENTIFICATION PATIENT ---
