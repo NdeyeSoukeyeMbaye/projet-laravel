@@ -5,16 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Patient extends Model
+class Patients extends Model
 {
     use HasFactory;
+    protected $table = 'patients';
+    protected $primaryKey = 'id_patient';
+    public $timestamps = false;
 
     protected $fillable = [
-        'user_id',
-        'telephone',
-        'adresse',
-        'date_naissance',
-        'sexe',
+        'id_utilisateur',
+        'adresse_patient',
+        'poids_patient',
+        'date_naissance_patient',
     ];
 
     // Un patient appartient à un utilisateur
