@@ -16,7 +16,7 @@ return new class extends Migration
         });
 
         Schema::table('patients', function (Blueprint $table) {
-            $table->foreignId('user_id')->nullable()->after('id')->constrained()->nullOnDelete();
+      //      $table->foreignId('user_id')->nullable()->after('id')->constrained()->nullOnDelete();
             $table->string('nom')->nullable()->after('user_id');
             $table->string('prenom')->nullable()->after('nom');
             $table->string('code')->nullable()->unique()->after('prenom');
@@ -40,7 +40,7 @@ return new class extends Migration
         });
 
         Schema::table('patients', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('user_id');
+          //  $table->dropConstrainedForeignId('user_id');
             $table->dropColumn(['nom', 'prenom', 'code']);
         });
 

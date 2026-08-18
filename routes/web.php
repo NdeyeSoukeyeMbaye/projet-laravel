@@ -5,12 +5,35 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccueilController;
 use App\Http\Controllers\UtilisateurController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\PatientCompteController;
+
+// 🔥 CES LIGNES AJOUTÉES VONT ENLEVER TOUS LES TRAITS ROUGES :
+
+use App\Http\Controllers\PatientRendezVousController;
+use App\Http\Controllers\PatientDossierMedicalController;
+use App\Http\Controllers\PatientHistoriqueController;
 
 Route::get('/', [AccueilController::class, 'index']);
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/secretaire', function () { 
-    return view('secretaire', ['user' => auth()->user()]); 
+
+/*
+|--------------------------------------------------------------------------
+| Déconnexion
+|--------------------------------------------------------------------------
+*/
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Pages diverses
+|--------------------------------------------------------------------------
+*/
+Route::get('/secretaire', function () {
+    return view('secretaire', [
+        'user' => auth()->user()
+    ]);
 })->name('secretaire');
 Route::get('/patientcompte', function () { 
     return view('patientcompte', ['user' => auth()->user()]); 
